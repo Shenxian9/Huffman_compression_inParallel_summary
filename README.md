@@ -1,0 +1,2 @@
+# Huffman_compression_inParallel_summary
+对哈夫曼压缩的改进，并行化研究
