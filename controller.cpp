@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <unistd.h>
 
 using namespace std;
 
@@ -16,6 +17,21 @@ static string exeNameByChoice(int choice)
         return "./main2";
     case 3:
         return "./main3";
+    default:
+        return "";
+    }
+}
+
+static string buildHintByChoice(int choice)
+{
+    switch (choice)
+    {
+    case 1:
+        return "g++ main1.cpp -o main1";
+    case 2:
+        return "g++ -fopenmp main2.cpp -o main2";
+    case 3:
+        return "nvcc main3.cu -o main3";
     default:
         return "";
     }
@@ -49,6 +65,19 @@ int main()
     if (targetExe.empty())
     {
         cerr << "Invalid implementation choice." << endl;
+        return 1;
+    }
+
+    if (access(targetExe.c_str(), F_OK) != 0)
+    {
+        cerr << "Target executable not found: " << targetExe << endl;
+        cerr << "Please build it first, e.g.: " << buildHintByChoice(impl) << endl;
+        return 1;
+    }
+    if (access(targetExe.c_str(), X_OK) != 0)
+    {
+        cerr << "Target exists but is not executable: " << targetExe << endl;
+        cerr << "Try: chmod +x " << targetExe << endl;
         return 1;
     }
 
