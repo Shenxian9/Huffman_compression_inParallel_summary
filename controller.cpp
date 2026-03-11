@@ -22,38 +22,38 @@ static string exeNameByChoice(int choice)
 
 int main()
 {
-    cout << "请选择实现版本：1.串行 2.OpenMP 3.CUDA" << endl;
+    cout << "Select implementation: 1.Serial 2.OpenMP 3.CUDA" << endl;
     int impl = 0;
     cin >> impl;
 
     string targetExe = exeNameByChoice(impl);
     if (targetExe.empty())
     {
-        cerr << "实现版本输入非法。" << endl;
+        cerr << "Invalid implementation choice." << endl;
         return 1;
     }
 
-    cout << "请选择操作：1.压缩 2.解压" << endl;
+    cout << "Select operation: 1.Compress 2.Decompress" << endl;
     int mode = 0;
     cin >> mode;
     if (mode != 1 && mode != 2)
     {
-        cerr << "操作模式输入非法。" << endl;
+        cerr << "Invalid operation choice." << endl;
         return 1;
     }
 
     string inputPath;
     string outputPath;
-    cout << "请输入输入文件路径：" << endl;
+    cout << "Input file path:" << endl;
     cin >> inputPath;
-    cout << "请输入输出文件路径：" << endl;
+    cout << "Output file path:" << endl;
     cin >> outputPath;
 
     const string tempInput = ".controller_stdin.tmp";
     ofstream fout(tempInput, ios::trunc);
     if (!fout)
     {
-        cerr << "无法创建临时输入文件。" << endl;
+        cerr << "Failed to create temporary input file." << endl;
         return 1;
     }
 
@@ -63,17 +63,17 @@ int main()
     fout.close();
 
     string cmd = targetExe + " < " + tempInput;
-    cout << "即将执行：" << targetExe << endl;
+    cout << "Running: " << targetExe << endl;
     int rc = system(cmd.c_str());
 
     remove(tempInput.c_str());
 
     if (rc != 0)
     {
-        cerr << "子程序执行失败，请先确认对应可执行文件已正确编译。" << endl;
+        cerr << "Child process failed. Please ensure target executable is built." << endl;
         return 1;
     }
 
-    cout << "控制程序执行完成。" << endl;
+    cout << "Controller finished." << endl;
     return 0;
 }
