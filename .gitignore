@@ -1,0 +1,45 @@
+# 编译产物
+*.o
+*.obj
+*.out
+*.exe
+*.app
+*.so
+*.dll
+*.dylib
+*.a
+*.lib
+
+# 预编译头
+*.gch
+*.pch
+
+# 调试文件
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# CMake
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+compile_commands.json
+
+# 日志和临时文件
+*.log
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# VS Code
+.vscode/
+
+# CLion
+.idea/
+
