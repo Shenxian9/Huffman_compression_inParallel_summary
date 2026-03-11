@@ -157,6 +157,14 @@ g++ controller.cpp -o controller
 
 程序会把参数转发给你选择的可执行文件。
 
+如需排查控制程序转发问题，可设置环境变量保留临时文件：
+
+```bash
+CONTROLLER_KEEP_TEMP=1 ./controller
+```
+
+程序会额外打印实际执行命令（`Command: ...`）并保留 `.controller_stdin.tmp` 供检查。
+
 ## 注意事项
 
 - 输入文件仅接受全英文，输入文件可用给出的随机文件生成程序进行生成。
