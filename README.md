@@ -168,6 +168,8 @@ CONTROLLER_KEEP_TEMP=1 ./controller.exe
 
 程序会额外打印实际执行命令（`Command: ...`）并保留 `.controller_stdin.tmp` 供检查。
 
+> Windows 下为避免 `cmd` 对重定向命令解析差异，controller 采用“程序内重定向 stdin 后再启动子进程”的方式执行。
+
 ## 注意事项
 
 - 输入文件仅接受全英文，输入文件可用给出的随机文件生成程序进行生成。

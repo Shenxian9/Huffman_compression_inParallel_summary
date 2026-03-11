@@ -18,11 +18,11 @@ static string exeNameByChoice(int choice)
     switch (choice)
     {
     case 1:
-        return ".\\main1.exe";
+        return "main1.exe";
     case 2:
-        return ".\\main2.exe";
+        return "main2.exe";
     case 3:
-        return ".\\main3.exe";
+        return "main3.exe";
     default:
         return "";
     }
@@ -40,7 +40,6 @@ static string exeNameByChoice(int choice)
     }
 #endif
 }
-
 
 static string fallbackExeNameByChoice(int choice)
 {
@@ -138,9 +137,7 @@ int main()
     {
         string fallbackExe = fallbackExeNameByChoice(impl);
         if (!fallbackExe.empty() && fileExists(fallbackExe))
-        {
             targetExe = fallbackExe;
-        }
     }
 #endif
 
@@ -196,9 +193,7 @@ int main()
         return 1;
     }
 
-    fout << mode << '\n'
-         << inputPath << '\n'
-         << outputPath << '\n';
+    fout << mode << '\n' << inputPath << '\n' << outputPath << '\n';
     fout.close();
 
     ifstream verify(tempInput, ios::binary);
@@ -209,20 +204,30 @@ int main()
     }
     verify.close();
 
+    int rc = 0;
+#ifdef _WIN32
+    FILE *redirected = freopen(tempInput.c_str(), "r", stdin);
+    if (!redirected)
+    {
+        cerr << "Failed to redirect stdin from temp file on Windows." << endl;
+        return 1;
+    }
+    string cmd = cmdQuote(targetExe);
+    cout << "Running: " << targetExe << endl;
+    cout << "Command: " << cmd << " (stdin redirected internally)" << endl;
+    rc = system(cmd.c_str());
+#else
     string cmd = cmdQuote(targetExe) + " < " + cmdQuote(tempInput);
     cout << "Running: " << targetExe << endl;
     cout << "Command: " << cmd << endl;
-    int rc = system(cmd.c_str());
+    rc = system(cmd.c_str());
+#endif
 
     const char *keepTemp = getenv("CONTROLLER_KEEP_TEMP");
     if (!(keepTemp && string(keepTemp) == "1"))
-    {
         remove(tempInput.c_str());
-    }
     else
-    {
         cout << "Temp file kept for debugging: " << tempInput << endl;
-    }
 
     if (rc != 0)
     {
