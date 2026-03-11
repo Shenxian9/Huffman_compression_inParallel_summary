@@ -3,11 +3,46 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+
+#ifdef _WIN32
+#include <io.h>
+#else
 #include <unistd.h>
+#endif
 
 using namespace std;
 
 static string exeNameByChoice(int choice)
+{
+#ifdef _WIN32
+    switch (choice)
+    {
+    case 1:
+        return ".\\main1.exe";
+    case 2:
+        return ".\\main2.exe";
+    case 3:
+        return ".\\main3.exe";
+    default:
+        return "";
+    }
+#else
+    switch (choice)
+    {
+    case 1:
+        return "./main1";
+    case 2:
+        return "./main2";
+    case 3:
+        return "./main3";
+    default:
+        return "";
+    }
+#endif
+}
+
+
+static string fallbackExeNameByChoice(int choice)
 {
     switch (choice)
     {
@@ -24,6 +59,19 @@ static string exeNameByChoice(int choice)
 
 static string buildHintByChoice(int choice)
 {
+#ifdef _WIN32
+    switch (choice)
+    {
+    case 1:
+        return "g++ main1.cpp -o main1.exe";
+    case 2:
+        return "g++ -fopenmp main2.cpp -o main2.exe";
+    case 3:
+        return "nvcc main3.cu -o main3.exe";
+    default:
+        return "";
+    }
+#else
     switch (choice)
     {
     case 1:
@@ -35,19 +83,36 @@ static string buildHintByChoice(int choice)
     default:
         return "";
     }
+#endif
 }
 
-static string shellQuote(const string &raw)
+static bool fileExists(const string &path)
 {
-    string out = "'";
+#ifdef _WIN32
+    return _access(path.c_str(), 0) == 0;
+#else
+    return access(path.c_str(), F_OK) == 0;
+#endif
+}
+
+#ifndef _WIN32
+static bool fileExecutable(const string &path)
+{
+    return access(path.c_str(), X_OK) == 0;
+}
+#endif
+
+static string cmdQuote(const string &raw)
+{
+    string out = "\"";
     for (char c : raw)
     {
-        if (c == '\'')
-            out += "'\\''";
+        if (c == '"')
+            out += "\\\"";
         else
             out.push_back(c);
     }
-    out += "'";
+    out += "\"";
     return out;
 }
 
@@ -68,18 +133,32 @@ int main()
         return 1;
     }
 
-    if (access(targetExe.c_str(), F_OK) != 0)
+#ifdef _WIN32
+    if (!fileExists(targetExe))
+    {
+        string fallbackExe = fallbackExeNameByChoice(impl);
+        if (!fallbackExe.empty() && fileExists(fallbackExe))
+        {
+            targetExe = fallbackExe;
+        }
+    }
+#endif
+
+    if (!fileExists(targetExe))
     {
         cerr << "Target executable not found: " << targetExe << endl;
         cerr << "Please build it first, e.g.: " << buildHintByChoice(impl) << endl;
         return 1;
     }
-    if (access(targetExe.c_str(), X_OK) != 0)
+
+#ifndef _WIN32
+    if (!fileExecutable(targetExe))
     {
         cerr << "Target exists but is not executable: " << targetExe << endl;
         cerr << "Try: chmod +x " << targetExe << endl;
         return 1;
     }
+#endif
 
     cout << "Select operation: 1.Compress 2.Decompress" << endl;
     int mode = 0;
@@ -130,7 +209,7 @@ int main()
     }
     verify.close();
 
-    string cmd = shellQuote(targetExe) + " < " + shellQuote(tempInput);
+    string cmd = cmdQuote(targetExe) + " < " + cmdQuote(tempInput);
     cout << "Running: " << targetExe << endl;
     cout << "Command: " << cmd << endl;
     int rc = system(cmd.c_str());

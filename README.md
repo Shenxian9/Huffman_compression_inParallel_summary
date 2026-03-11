@@ -104,13 +104,14 @@ nvcc main3.cu -o main3
 
 ```bash
 # 编译统一控制程序
-g++ controller.cpp -o controller
+g++ controller.cpp -o controller.exe
 ```
 
 该程序会先让你选择算法版本（串行/OpenMP/CUDA），再选择压缩或解压，并自动调用对应可执行文件。
 
 > 为避免部分终端出现中文乱码（编码不一致）问题，控制程序提示信息采用英文。
-> 使用前请先确保 `main1`、`main2`、`main3` 已按上文方式编译完成。
+> Windows 下请确保已生成 `main1.exe`、`main2.exe`、`main3.exe`；控制程序会优先按 `.exe` 名称查找。
+> 使用前请先确保对应程序已按上文方式编译完成。
 
 ---
 
@@ -140,7 +141,7 @@ g++ controller.cpp -o controller
 ### 5.2 统一控制程序运行
 
 ```bash
-./controller
+./controller.exe
 ```
 
 控制程序会引导你输入：
@@ -162,7 +163,7 @@ g++ controller.cpp -o controller
 如需排查控制程序转发问题，可设置环境变量保留临时文件：
 
 ```bash
-CONTROLLER_KEEP_TEMP=1 ./controller
+CONTROLLER_KEEP_TEMP=1 ./controller.exe
 ```
 
 程序会额外打印实际执行命令（`Command: ...`）并保留 `.controller_stdin.tmp` 供检查。
